@@ -4,6 +4,7 @@
 #include <string.h>
 
 int extraMemoryAllocated;
+void merge(int arr[], int l, int m, int r);
 
 void *Alloc(size_t sz)
 {
@@ -31,6 +32,63 @@ size_t Size(void* ptr)
 // extraMemoryAllocated counts bytes of extra memory allocated
 void mergeSort(int pData[], int l, int r)
 {
+	if (l < r) {
+		
+		int mid = (l+r)/2;
+		mergeSort(pData, l, mid);
+		mergeSort(pData, mid+1, r);
+
+		merge(pData, l, mid, r);
+	}
+}
+
+void merge(int arr[], int l, int m, int r)
+{
+	int i, j, k;
+	int n1 = m - l + 1;
+	int n2 = r - m;
+	
+	int *L = (int*) Alloc(n1*sizeof(int));
+	int *R = (int*) Alloc(n2*sizeof(int));
+	
+	for (i = 0; i < n1; i++)
+		L[i] = arr[l + i];
+	for (j = 0; j < n2; j++)
+		R[j] = arr[m + 1+ j];
+	
+	i = 0; // Initial index of first subarray
+	j = 0; // Initial index of second subarray
+	k = l; // Initial index of merged subarray
+	while (i < n1 && j < n2)
+	{
+		if (L[i] <= R[j])
+		{
+			arr[k] = L[i];
+			i++;
+		}
+			else
+		{
+			arr[k] = R[j];
+			j++;
+		}
+		k++;
+	}
+	/* Copy the remaining elements of L[], if there
+	are any */
+	while (i < n1) {
+		arr[k] = L[i];
+		i++;
+		k++;
+	}
+		/* Copy the remaining elements of R[], if there
+		are any */
+	while (j < n2){
+		arr[k] = R[j];
+		j++;
+		k++;
+	}
+	DeAlloc(L);
+	DeAlloc(R);
 }
 
 // parses input file to an integer array
@@ -67,19 +125,20 @@ int parseData(char *inputFileName, int **ppData)
 // prints first and last 100 items in the data array
 void printArray(int pData[], int dataSz)
 {
-	int i, sz = dataSz - 100;
-	printf("\tData:\n\t");
-	for (i=0;i<100;++i)
-	{
-		printf("%d ",pData[i]);
-	}
-	printf("\n\t");
-	
-	for (i=sz;i<dataSz;++i)
-	{
-		printf("%d ",pData[i]);
-	}
-	printf("\n\n");
+	int i, sz = (dataSz > 100 ? dataSz - 100 : 0);
+    int firstHundred = (dataSz < 100 ? dataSz : 100);
+    printf("\tData:\n\t");
+    for (i=0;i<firstHundred;++i)
+    {
+        printf("%d ",pData[i]);
+    }
+    printf("\n\t");
+    
+    for (i=sz;i<dataSz;++i)
+    {
+        printf("%d ",pData[i]);
+    }
+    printf("\n\n");
 }
 
 int main(void)
